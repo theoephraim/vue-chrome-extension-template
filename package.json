@@ -1,12 +1,12 @@
 {
-  "name": "ETHDevTools",
+  "name": "vue-chrome-extension-template",
   "version": "0.0.1",
-  "description": "ETH Dev Tools Chrome Extension",
+  "description": "Vue Chrome Extension Example",
   "private": true,
   "scripts": {
-    "lint": "LOAD_ENV=production eslint --fix --ext .js,.vue src/",
     "dev": "webpack --config build/webpack.dev.conf.js --hide-modules",
-    "build": "webpack --config build/webpack.prod.conf.js -p --progress --hide-modules --colors"
+    "build": "webpack --config build/webpack.prod.conf.js -p --progress --hide-modules --colors",
+    "lint": "LOAD_ENV=production eslint --fix --ext .js,.vue src/"
   },
   "dependencies": {
     "date-fns": "^2.9.0",
@@ -26,7 +26,6 @@
     "autoprefixer": "^9.7.4",
     "babel-eslint": "^10.0.3",
     "babel-loader": "^8.0.6",
-    "babel-plugin-transform-runtime": "^6.23.0",
     "copy-webpack-plugin": "^5.1.1",
     "css-loader": "^3.4.2",
     "eslint": "^6.8.0",
@@ -40,6 +39,7 @@
     "friendly-errors-webpack-plugin": "^1.7.0",
     "generate-json-from-js-webpack-plugin": "^0.1.1",
     "html-webpack-plugin": "^3.2.0",
+    "html-webpack-template": "^6.2.0",
     "husky": "^4.2.3",
     "less": "^3.11.1",
     "less-loader": "^5.0.0",
@@ -60,8 +60,8 @@
   },
   "engines": {
     "node": "^13.8.0",
-    "npm": "^6.13.4",
+    "npm": "^6.13.6",
     "yarn": "^1.22.0"
   },
-  "browserslist": "> 0.25%, not dead"
+  "browserslist": "last 3 Chrome versions"
 }

@@ -5,6 +5,6 @@ import root from './root.vue';
 Vue.config.productionTip = false;
 /* eslint-disable no-new */
 new Vue({
-  el: '#root',
+  el: '#app',
   render: (h) => h(root),
 });

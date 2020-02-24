@@ -2,12 +2,14 @@
 // and it persists until the devtools panel is closed
 // here we intiailize any panels and sidebar panes
 
-let panelEnabled = false;
-let mainPanel;
+import { broadcastMessage, listenForMessagesFromTab } from '@/lib/message-passing';
+
+let panel;
+let panelShown = false;
+let sidebar;
 
 const inspectedTabId = chrome.devtools.inspectedWindow.tabId;
-
-const darkModeEnabled = chrome.devtools.panels.themeName === 'dark';
+const chromeTheme = chrome.devtools.panels.themeName === 'dark' ? 'dark' : 'light';
 
 // create a long-lived communication channel between this page and the
 // main extension "background"
@@ -19,39 +21,55 @@ const darkModeEnabled = chrome.devtools.panels.themeName === 'dark';
 
 
 function createPanel() {
-  panelEnabled = true;
-  chrome.devtools.panels.create('myext', 'icons/128.png', 'devtools-panel.html', (panel) => {
-    mainPanel = panel;
-    // panel.onShown.addListener(() => {
-    //   chrome.runtime.sendMessage('web3-panel-shown');
-    //   panelShown = true;
-    //   // if (panelLoaded) executePendingAction();
-    // });
-    // panel.onHidden.addListener(() => {
-    //   chrome.runtime.sendMessage('web3-panel-hidden');
-    //   panelShown = false;
-    // });
+  chrome.devtools.panels.create('myext', 'icons/128.png', `devtools-panel.html?theme=${chromeTheme}`, (_panel) => {
+    panel = _panel;
+    panel.onShown.addListener(() => {
+      broadcastMessage({
+        action: 'devtools_panel_shown',
+        tabId: inspectedTabId,
+      });
+      panelShown = true;
+    });
+    panel.onHidden.addListener(() => {
+      broadcastMessage({
+        action: 'devtools_panel_hidden',
+        tabId: inspectedTabId,
+      });
+      panelShown = false;
+    });
   });
 }
 
-chrome.runtime.onMessage.addListener((payload) => {
-  console.log('devtools-background.js - chrome.runtime.onMessage.addListener((payload) => {})');
-  console.log('devtools bg msg', payload);
-  if (payload.connect) {
-    console.log('post window msg from devtools-background.js');
-    const data = { type: 'FROM_BACK', text: 'Hello from the backend!' };
-    chrome.runtime.sendMessage(data);
-    window.postMessage(data, '*');
-    return 'told em!';
-  }
-  if (!payload.w3dt_action) return;
-  if (!panelEnabled) createPanel();
+// Side bar shows up in the elements tab
+// see https://developer.chrome.com/extensions/devtools#devtools-ui
+function createSidebar() {
+  chrome.devtools.panels.elements.createSidebarPane('My Extension', (_sidebar) => {
+    sidebar = _sidebar;
+    // sidebar initialization code here
+    sidebar.setObject({ some_data: 'Some data to show' });
+
+    // you can also show a full page
+    // sidebar.setPage('devtools-sidebar.html'); // you would need to make a new page
+
+    // or evaluate an expression within the page being inspected and display the result
+    // sidebar.setExpression();
+  });
+}
+
+// send message to background script to check if we should show devtools panel for this
+// for example, if we have detected something on the page
+broadcastMessage({
+  action: 'check_devtools_enabled',
+  tabId: inspectedTabId,
+}, (enabled) => {
+  if (enabled && !panel) createPanel();
+  if (!sidebar) createSidebar();
 });
 
-// do an initial check when devtools are first opened on this tab
-chrome.runtime.sendMessage({
-  w3dt_action: 'check-enabled', tabId: chrome.devtools.inspectedWindow.tabId,
-}, (enabled) => {
-  console.log('devtools-background.js - chrome.runtime.sendMessage(w3dt_action: check-enaled tab id:', chrome.devtools.inspectedWindow.tabId);
-  if (enabled) createPanel();
+// also listen for messages from our injected script, so that if devtools was already open
+// but panel has not yet been initialized, we can initialize it
+listenForMessagesFromTab(inspectedTabId, (payload, sender, reply) => {
+  console.log('👂 devtools page heard runtime message from inspected tab');
+  console.log(payload);
+  if (!panel) createPanel();
 });

@@ -7,6 +7,10 @@
 
 <script>
 
+import { broadcastMessage } from '@/lib/message-passing';
+import { openExtensionOptionsPage } from '@/lib/chrome-helpers';
+
+
 export default {
   data: () => ({
     enabled: false,
@@ -18,10 +22,7 @@ export default {
   },
   methods: {
     buttonClickHandler() {
-      chrome.runtime.sendMessage({
-        source: 'myextension',
-        message: 'moo',
-      }, (response) => {
+      broadcastMessage({ ping: true }, (response) => {
         this.message = response;
       });
     },

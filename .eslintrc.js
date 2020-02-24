@@ -49,7 +49,7 @@ module.exports = {
     ,
     'no-plusplus': 0, // i++ OK :D
     'no-else-return': ["error", { allowElseIf: true }],
-    'arrow-parens': ["error", "always"], // Forces `(thing) -> thing.x`
+    'arrow-parens': ["error", "always"], // Forces `(thing) => thing.x`
     'no-param-reassign': ['error', {
       props: true,
       ignorePropertyModificationsFor: [
@@ -61,8 +61,7 @@ module.exports = {
     'global-require': 0, // allows importing components into an object
     // TODO: figure out how to enforce this just within vue watchers?
     'func-names': 0,
-    // sometimes it makes sense if you think the file will soon be expanded
-    'import/prefer-default-export': 0,
+    'import/prefer-default-export': 0, // sometimes makes sense if file will soon be expanded
     'radix': 0,
     'no-confusing-arrow': 0,
     'max-len': 0,

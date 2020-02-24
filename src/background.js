@@ -1,10 +1,12 @@
 // This is the background script
 // accessible in other components via chrome.runtime.getBackgroundPage()
 
-// const tabs = {};
+import { broadcastMessage, listenForMessages } from '@/lib/message-passing';
+
+const tabs = {};
 // window.tabs = tabs;
 
-let counter = 0;
+const counter = 0;
 
 // Install handler
 chrome.runtime.onInstalled.addListener(() => {
@@ -40,29 +42,43 @@ chrome.runtime.onInstalled.addListener(() => {
 // });
 
 
-chrome.runtime.onMessage.addListener((payload, sender, reply) => {
+let pongCount = 0;
+listenForMessages((payload, sender, reply) => {
   console.log('👂 background heard runtime message');
   console.log(sender);
   console.log(payload);
 
-  reply({ counter: counter++ });
+  // just an example - we will record click locations coming from tabs
+  if (sender.tab) {
+    if (payload.action === 'click') {
+      tabs[sender.tab.id] = tabs[sender.tab.id] || {};
+      tabs[sender.tab.id].clicks = tabs[sender.tab.id].clicks || [];
+      tabs[sender.tab.id].clicks.push(payload.clickLocation);
 
-  // chrome.alarms.create({delayInMinutes: 5})
-  // chrome.tabs.executeScript({file: 'logic.js'});
-  // chrome.tabs.executeScript({code: 'document.body.style.backgroundColor="orange"'});
+      // enable the "browser action" icon (right of the URL bar)
+      chrome.browserAction.setIcon({
+        tabId: sender.tab.id,
+        path: {
+          // 16: 'icons/16.png',
+          // 48: 'icons/48.png',
+          128: '/icons/128-enabled.png',
+        },
+      });
+    }
+  }
 
-  // chrome.runtime.Port.disconnect(); // manually close a port?
+  // devtools "page" checking whether to show our panel
+  // we will reply yes if the user has clicked the page yet - which we have been tracking
+  if (payload.action === 'check_devtools_enabled') {
+    if (tabs[payload.tabId]) {
+      return reply(true);
+    }
+    return reply(false);
+  }
 
-  // enable popup if not enabled already
-  // tabs[sender.tab.id].enabled = true;
-  // chrome.browserAction.setIcon({
-  //   tabId: sender.tab.id,
-  //   path: {
-  //     // 16: 'icons/16.png',
-  //     // 48: 'icons/48.png',
-  //     128: '/icons/128-enabled.png',
-  //   },
-  // });
+  if (payload.ping) {
+    return reply({ pong: ++pongCount });
+  }
 });
 
 // last minute cleanup

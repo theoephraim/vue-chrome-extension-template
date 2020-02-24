@@ -3,8 +3,8 @@
 // This script is injected into every page (can be configured in manifest)
 // it is responsible for injecting more scripts and handling communication back to the extension
 
-const _ = require('lodash');
-
+import _ from 'lodash';
+import { broadcastMessage } from '@/lib/message-passing';
 
 // handle messages via window
 window.addEventListener('message', (e) => {
@@ -20,22 +20,17 @@ chrome.runtime.onMessage.addListener((payload, sender, reply) => {
 });
 
 // send an initial loaded message
-chrome.runtime.sendMessage({
-  source: 'myextension',
-  message: 'injected',
-}, (response) => {
-  console.log('< response from extension', response);
+broadcastMessage('hello from injected script');
+
+// Just for an example
+// every time the user clicks, we broadcast a message to the background
+window.addEventListener('click', (e) => {
+  broadcastMessage({
+    action: 'click',
+    clickLocation: { x: e.clientX, y: e.clientY },
+  });
 });
 
-let counter = 1;
-setInterval(() => {
-  chrome.runtime.sendMessage({
-    source: 'myextension',
-    counter: counter++,
-  }, (response) => {
-    console.log('< response from extension', response);
-  });
-}, 10000);
 
 // This is the code that actually gets injected into our page
 // and has access to the window / web3 global

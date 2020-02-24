@@ -1,7 +1,9 @@
 'use strict'
 const path = require('path');
+const _ = require('lodash');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const HtmlWebpackTemplate = require('html-webpack-template');
 const { VueLoaderPlugin } = require('vue-loader');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const GenerateJsonFromJsPlugin = require('generate-json-from-js-webpack-plugin');
@@ -9,16 +11,6 @@ const GenerateJsonFromJsPlugin = require('generate-json-from-js-webpack-plugin')
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
-const htmlPage = (title, filename, chunks, template) => new HtmlWebpackPlugin({
-  title,
-  // hash: true,
-  cache: true,
-  inject: 'body',
-  filename: './' + filename + '.html',
-  // template: template || path.resolve(__dirname, './page.ejs'),
-  appMountId: 'app',
-  chunks
-});
 
 let resolve = dir => path.join(__dirname, '..', 'src', dir)
 module.exports = {
@@ -29,8 +21,13 @@ module.exports = {
     inject: resolve('./inject'),
     popup: resolve('./popup'),
     options: resolve('./options'),
+
+    // devtools
     devtools: resolve('./devtools'),
     'devtools-panel': resolve('./devtools-panel'),
+
+    // chrome overrides
+    newtab: resolve('./newtab'),
   },
   output: {
     path: path.join(__dirname, '..', 'dist'),
@@ -149,13 +146,23 @@ module.exports = {
     new VueLoaderPlugin(),
     // new webpack.DefinePlugin({'process.env': publicEnv}),
 
-    // generate an html page for each entry point
-    // htmlPage('home', 'app', ['tab']),
+    // generate an html page for each entrypoint that is not just a script
+    ..._.map({
+      'devtools-panel': ['devtools-panel'],
+      'devtools': ['devtools'],
+      'popup': ['popup'],
+      'options': ['options'],
+      'newtab': ['newtab'],
+    }, (chunks, filename) => new HtmlWebpackPlugin({
+      inject: false,
+      template: HtmlWebpackTemplate,
+      appMountId: 'app',
 
-    htmlPage('devtools-panel', 'devtools-panel', ['devtools-panel']),
-    htmlPage('devtools', 'devtools', ['devtools']),
-    htmlPage('popup', 'popup', ['popup']),
-    htmlPage('options', 'options', ['options']),
+      title: filename,
+      cache: true,
+      filename: `./${filename}.html`,
+      chunks
+    })),
 
     // create manifest.json from a js file
     // so we can add comments, not worry about quotes/commas, generate dynamically

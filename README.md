@@ -7,7 +7,7 @@ Live reloading enabled via [webpack-extension-reloader](https://github.com/ruben
 
 ## Developing locally
 
-run `yarn dev`
+run `yarn run dev`
 
 - go to `chrome://extensions`
 - enable "developer mode"
@@ -15,4 +15,4 @@ run `yarn dev`
 
 ## Building for production
 
-run `yarn run
+run `yarn run build`

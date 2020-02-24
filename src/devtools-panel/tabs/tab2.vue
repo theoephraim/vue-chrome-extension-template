@@ -1,5 +1,7 @@
 <template lang="pug">
-  div My Extension Options Page
+  div
+    h2 Dev tools tab 2
+
 </template>
 <script>
 
@@ -7,21 +9,18 @@ import { broadcastMessage } from '@/lib/message-passing';
 
 export default {
   metaInfo: {
-    title: 'My extension - options', // page title - will be visible on tab!
+    title: 'Devtools tab 2', // page title - will be visible on tab!
   },
   data: () => ({
   }),
   computed: { },
   created() { },
   mounted() {
-    broadcastMessage('hello from options page');
+    broadcastMessage('dev tools tab 2 initialized');
   },
   methods: {
   },
 };
 </script>
-<style>
-  div {
-    color: blue
-  }
+<style lang="less">
 </style>

@@ -1,10 +1,11 @@
 <template lang="pug">
 .devtools-panel
   nav.devtools-nav.native-bar
-    router-link(:to='{name: "panel1"}') subpanel 1
-    router-link(:to='{name: "panel2"}') subpanel 2
-  router-view(v-if="connected")
+    router-link(:to='{name: "tab1"}') Tab 1
+    router-link(:to='{name: "tab2"}') Tab 2
+  router-view
 
+  hr
   button(@click='optionsButtonHandler') Show Extension Options
 
 </template>

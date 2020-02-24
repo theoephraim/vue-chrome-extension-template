@@ -43,7 +43,7 @@ module.exports = {
     default_popup: 'popup.html', // content of "popup" that appears when you click the icon
   },
 
-  // options page
+  // extension options page
   options_page: "options.html",
 
   // omnibox - this lets you hook into the omnnibox (url bar) by typing this string first
@@ -52,7 +52,7 @@ module.exports = {
     keyword: "myext", // this should be short to trigger your extension to take over
   },
 
-  // inject scripts
+  // inject scripts into pages being browsed
   content_scripts: [
     {
       js: ['js/inject.js'],
@@ -73,14 +73,19 @@ module.exports = {
     },
   },
 
+  // chrome overrides - replaces default chrome page - key can be newtab|bookmarks|history
+  // NOTE - an extension can only override one of these at a time!
   chrome_url_overrides : {
-    // newtab: "newtab.html" // replace chrome pages, can also be "bookmarks" or "history"
+    newtab: "newtab.html",
   },
+
+  // Extend chrome devtools
+  // this page is not shown, it initializes other devtools components (panels, sidebars, etc)
+  devtools_page: 'devtools.html', // it must be an html page for some reason
 
   content_security_policy: "script-src 'self' 'unsafe-eval'; object-src 'self'",
   web_accessible_resources: [
     'devtoolspanel.html',
   ],
-  devtools_page: 'devtools.html', // it must be an html page for some reason
 
 };
