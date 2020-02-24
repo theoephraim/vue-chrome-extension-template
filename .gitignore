@@ -1,0 +1,9 @@
+.DS_Store
+config/local.js
+node_modules/
+/dist/
+npm-debug.log*
+*.log
+/.vscode
+TODO
+
