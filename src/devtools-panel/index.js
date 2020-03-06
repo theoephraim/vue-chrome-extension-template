@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import '@/lib/vue-setup';
 
-import root from './root';
+import root from './devtools-page';
 import router from './router';
 import store from './store';
 
@@ -12,5 +12,4 @@ new Vue({
   store,
   router,
   render: (h) => h(root),
-
 });

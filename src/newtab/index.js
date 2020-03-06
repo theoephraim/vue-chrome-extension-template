@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import '@/lib/vue-setup';
-import root from './root.vue';
+
+import root from './newtab-page';
 
 Vue.config.productionTip = false;
 /* eslint-disable no-new */

@@ -2,9 +2,10 @@
 
 import _ from 'lodash';
 
+
 export function broadcastMessage(payload, callback) {
   const fullPayload = {
-    _msgSource: 'myextension',
+    _msgSource: process.env.EXTENSION_MESSAGE_ID,
     ..._.isString(payload) ? { message: payload } : payload,
   };
   if (callback) {
@@ -20,7 +21,7 @@ export function broadcastMessage(payload, callback) {
 export function listenForMessages(messageHandler) {
   chrome.runtime.onMessage.addListener((payload, sender, reply) => {
     // ignore messages that are not from our extension
-    if (payload._msgSource !== 'myextension') return;
+    if (payload._msgSource !== process.env.EXTENSION_MESSAGE_ID) return;
 
     messageHandler(payload, sender, reply);
   });
@@ -28,7 +29,7 @@ export function listenForMessages(messageHandler) {
 export function listenForMessagesFromTab(tabId, messageHandler) {
   chrome.runtime.onMessage.addListener((payload, sender, reply) => {
     // ignore messages that are not from our extension
-    if (payload._msgSource !== 'myextension') return;
+    if (payload._msgSource !== process.env.EXTENSION_MESSAGE_ID) return;
     if (_.get(sender, 'tab.id') !== tabId) return;
 
     messageHandler(payload, sender, reply);

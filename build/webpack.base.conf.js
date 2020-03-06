@@ -8,26 +8,29 @@ const { VueLoaderPlugin } = require('vue-loader');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const GenerateJsonFromJsPlugin = require('generate-json-from-js-webpack-plugin');
 
+const { publicEnv } = require('../config/env');
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
+function resolveSrc(more = '') {
+  return path.join(__dirname, '..', 'src', more);
+}
 
-let resolve = dir => path.join(__dirname, '..', 'src', dir)
 module.exports = {
   mode: 'development',
-  context: path.resolve(__dirname, '../'),
+  context: resolveSrc(),
   entry: {
-    background: resolve('./background'),
-    inject: resolve('./inject'),
-    popup: resolve('./popup'),
-    options: resolve('./options'),
+    background: resolveSrc('background'),
+    inject: resolveSrc('inject'),
+    popup: resolveSrc('popup'),
+    options: resolveSrc('options'),
 
     // devtools
-    devtools: resolve('./devtools'),
-    'devtools-panel': resolve('./devtools-panel'),
+    devtools: resolveSrc('devtools'),
+    'devtools-panel': resolveSrc('devtools-panel'),
 
     // chrome overrides
-    newtab: resolve('./newtab'),
+    newtab: resolveSrc('newtab'),
   },
   output: {
     path: path.join(__dirname, '..', 'dist'),
@@ -44,7 +47,7 @@ module.exports = {
     extensions: ['.js', '.vue', '.json', '.mjs'],
     alias: {
       'vue$': 'vue/dist/vue.esm.js',
-      '@': path.resolve(__dirname, '../src'),
+      '@': resolveSrc(),
     },
   },
   module: {
@@ -80,9 +83,9 @@ module.exports = {
           { loader: 'sass-resources-loader',
             options: {
               resources: [
-                path.resolve(__dirname, '../src/style/_variables.less'),
-                path.resolve(__dirname, '../src/style/_colors.less'),
-                path.resolve(__dirname, '../src/style/_mixins.less'),
+                resolveSrc('/style/_variables.less'),
+                resolveSrc('/style/_colors.less'),
+                resolveSrc('/style/_mixins.less'),
               ],
             }
           },
@@ -99,7 +102,7 @@ module.exports = {
       {
         test: /\.js$/,
         loader: 'babel-loader',
-        include: path.resolve(__dirname, '../src'),
+        include: resolveSrc(),
       },
       {
         test: /\.(png|jpe?g|gif)(\?.*)?$/,
@@ -144,36 +147,36 @@ module.exports = {
   },
   plugins: [
     new VueLoaderPlugin(),
-    // new webpack.DefinePlugin({'process.env': publicEnv}),
+    new webpack.DefinePlugin({'process.env': publicEnv}),
 
-    // generate an html page for each entrypoint that is not just a script
-    ..._.map({
-      'devtools-panel': ['devtools-panel'],
-      'devtools': ['devtools'],
-      'popup': ['popup'],
-      'options': ['options'],
-      'newtab': ['newtab'],
-    }, (chunks, filename) => new HtmlWebpackPlugin({
-      inject: false,
-      template: HtmlWebpackTemplate,
-      appMountId: 'app',
+    // // generate an html page for each entrypoint that is not just a script
+    // ..._.map({
+    //   'devtools-panel': ['devtools-panel'],
+    //   'devtools': ['devtools'],
+    //   'popup': ['popup'],
+    //   'options': ['options'],
+    //   'newtab': ['newtab'],
+    // }, (chunks, filename) => new HtmlWebpackPlugin({
+    //   inject: false,
+    //   template: HtmlWebpackTemplate,
+    //   appMountId: 'app',
 
-      title: filename,
-      cache: true,
-      filename: `./${filename}.html`,
-      chunks
-    })),
+    //   title: filename,
+    //   cache: true,
+    //   filename: `./${filename}.html`,
+    //   chunks
+    // })),
 
     // create manifest.json from a js file
     // so we can add comments, not worry about quotes/commas, generate dynamically
     new GenerateJsonFromJsPlugin({
-      path: path.join(__dirname, '..', 'src', 'manifest.js'),
+      path: resolveSrc('manifest.js'),
       filename: 'manifest.json',
     }),
 
-    new CopyWebpackPlugin([
-      // copy all static files - used for icons/images/etc
-      { from: path.join(__dirname, '..', 'static') },
-    ]),
+    // new CopyWebpackPlugin([
+    //   // copy all static files - used for icons/images/etc
+    //   { from: path.join(__dirname, '..', 'static') },
+    // ]),
   ],
 };

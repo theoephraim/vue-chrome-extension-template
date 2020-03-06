@@ -2,6 +2,9 @@
 // accessible in other components via chrome.runtime.getBackgroundPage()
 
 import { broadcastMessage, listenForMessages } from '@/lib/message-passing';
+import { setSettings, getSetting } from '@/lib/storage-helpers';
+
+import './manifest'; // this is only to get the linter to run on it
 
 const tabs = {};
 // window.tabs = tabs;
@@ -9,7 +12,7 @@ const tabs = {};
 const counter = 0;
 
 // Install handler
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener(async () => {
   console.log('Extension installed!');
 
   // create context menu - if more than one, they will collapse into children of a parent menu item
@@ -20,17 +23,17 @@ chrome.runtime.onInstalled.addListener(() => {
     contexts: ['selection'],
   });
 
-  // can save things to chrome storage and access across extension components
-  // NOTE - requires "storage" permission in manifest
-  // chrome.storage.sync.set({ foo: 'bar' }, function() {
-
-  // });
+  await setSettings({
+    setting1: 'Initial value setting 1',
+    setting2: 'Initial value setting 2',
+  });
 
 
   // browserAction is for an action icon that is for all pages
   // alternatively you can use a pageAction if it should only show up on some pages
-  chrome.browserAction.setBadgeText({ text: 'OFF' });
+
   // chrome.browserAction.setBadgeBackgroundColor({ color: '#FF0000' });
+
 
   // one way to add rules to selectively activate/deactivate the extension
   // see https://developer.chrome.com/extensions/user_interface#rules
@@ -43,7 +46,7 @@ chrome.runtime.onInstalled.addListener(() => {
 
 
 let pongCount = 0;
-listenForMessages((payload, sender, reply) => {
+listenForMessages((payload, sender, reply) => { // eslint-disable-line consistent-return
   console.log('👂 background heard runtime message');
   console.log(sender);
   console.log(payload);
@@ -59,10 +62,12 @@ listenForMessages((payload, sender, reply) => {
       chrome.browserAction.setIcon({
         tabId: sender.tab.id,
         path: {
-          // 16: 'icons/16.png',
-          // 48: 'icons/48.png',
           128: '/icons/128-enabled.png',
         },
+      });
+      chrome.browserAction.setBadgeText({
+        tabId: sender.tab.id,
+        text: 'ON',
       });
     }
   }
@@ -105,14 +110,13 @@ chrome.extension.onConnect.addListener((port) => {
   // });
 });
 
-// command handler (keyboard shortcuts) - see command definition in manifest
+// command handler (keyboard shortcuts) - see `commands` definition in manifest
 chrome.commands.onCommand.addListener((command) => {
-  console.log(`Command invoked: ${command}`);
+  alert(`command invoked! - ${command}`); // eslint-disable-line no-alert
 });
 
-// omnibox handler - must include omnibox in manifest
+// omnibox handler - see `omnibox` definition in manifest
 chrome.omnibox.onInputEntered.addListener((text) => {
-  // Encode user input for special characters , / ? : @ & = + $ #
   const newURL = `https://www.google.com/search?q=${encodeURIComponent(text)}`;
   chrome.tabs.create({ url: newURL });
 });

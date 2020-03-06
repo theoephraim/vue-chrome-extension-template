@@ -9,6 +9,7 @@
     "lint": "LOAD_ENV=production eslint --fix --ext .js,.vue src/"
   },
   "dependencies": {
+    "chrome-promise": "^3.0.5",
     "date-fns": "^2.9.0",
     "lodash": "^4.17.15",
     "vue": "^2.6.11",
@@ -26,6 +27,7 @@
     "autoprefixer": "^9.7.4",
     "babel-eslint": "^10.0.3",
     "babel-loader": "^8.0.6",
+    "chalk": "^3.0.0",
     "copy-webpack-plugin": "^5.1.1",
     "css-loader": "^3.4.2",
     "eslint": "^6.8.0",
