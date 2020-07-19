@@ -11,7 +11,7 @@
   "dependencies": {
     "chrome-promise": "^3.0.5",
     "date-fns": "^2.9.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "vue": "^2.6.11",
     "vue-awesome": "^4.0.2",
     "vue-json-pretty": "^1.6.3",
